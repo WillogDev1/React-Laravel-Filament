@@ -24,6 +24,10 @@ class User extends Authenticatable implements FilamentUser
         'name',
         'email',
         'password',
+        'provider_id',
+        'provider_name',
+        'provider_token',
+        'provider_refresh_token',
     ];
 
     /**
@@ -34,6 +38,8 @@ class User extends Authenticatable implements FilamentUser
     protected $hidden = [
         'password',
         'remember_token',
+        'provider_token',
+        'provider_refresh_token',
     ];
 
     /**
