@@ -18,9 +18,15 @@ class AuthenticatedSessionController extends Controller
      */
     public function create(Request $request): Response
     {
+    // Busca todos os provedores ativos
+    $activeProviders = \App\Models\Service::where('active', true)
+        ->pluck('name') // Retorna apenas os nomes dos provedores
+        ->toArray();
+
         return Inertia::render('auth/login', [
             'canResetPassword' => Route::has('password.request'),
             'status' => $request->session()->get('status'),
+            'activeProviders' => $activeProviders,
         ]);
     }
 
