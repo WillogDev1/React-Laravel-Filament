@@ -24,24 +24,37 @@ class ProviderCallbackController extends Controller
             return redirect(route('login'))->with('error', 'Provedor inválido ou desativado.');
         }
 
+        // Obtém os dados do usuário do provedor
         $socialUser = Socialite::driver($provider)->user();
 
-        $user = User::updateOrCreate(
-            [
+        // Verifica se o e-mail já existe no banco de dados
+        $user = User::where('email', $socialUser->getEmail())->first();
+
+        if ($user) {
+            // Se o usuário já existir, atualiza os dados do provedor
+            $user->update([
                 'provider_id' => $socialUser->getId(),
                 'provider_name' => $provider,
-            ],
-            [
+                'provider_token' => $socialUser->token,
+                'provider_refresh_token' => $socialUser->refreshToken,
+            ]);
+        } else {
+            // Se o usuário não existir, cria um novo registro
+            $user = User::create([
                 'name' => $socialUser->getName(),
                 'email' => $socialUser->getEmail(),
+                'provider_id' => $socialUser->getId(),
+                'provider_name' => $provider,
                 'provider_token' => $socialUser->token,
                 'provider_refresh_token' => $socialUser->refreshToken,
                 'password' => bcrypt(Str::random(32)), // Gera uma senha forte e criptografada
-            ]
-        );
+            ]);
+        }
 
+        // Autentica o usuário
         Auth::login($user);
 
+        // Redireciona para o painel
         return redirect('/dashboard');
     }
 }
